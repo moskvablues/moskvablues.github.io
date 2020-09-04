@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[My Life Blog]]></title>
+  <link href="http://moskvablues.github.io/atom.xml" rel="self"/>
+  <link href="http://moskvablues.github.io/"/>
+  <updated>2020-09-03T23:22:54+08:00</updated>
+  <id>http://moskvablues.github.io/</id>
+  <author>
+    <name><![CDATA[moskvablues]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Linux 环境下挂载新硬盘]]></title>
+    <link href="http://moskvablues.github.io/blog/2020/09/02/linux-mount-ufs-format/"/>
+    <updated>2020-09-02T15:03:58+08:00</updated>
+    <id>http://moskvablues.github.io/blog/2020/09/02/linux-mount-ufs-format</id>
+    <content type="html"><![CDATA[<h3>Linux下mount FreeBSD分区</h3>
+
+<p><strong>挂载 mount ufs2 文件系统：</strong></p>
+
+<pre><code>mount -t ufs -o ufstype=ufs2,ro /dev/sdXY /path/to/mnt/point
+</code></pre>
+
+<p>每个分区包含一个文件系统存在 FreeBSD 中，称为一个 Slice。
+Slice 是 FreeBSD 中的一个术语，通常称为分区。
+这是因为 FreeBSD 具有 UNIX 的背景，Slice 是编号的，从 1 开始到 4。因此你需要使用等同的 Linux 分区名称。</p>
+
+<p><strong>验证UFS分区支持</strong>
+为了检查你的 Linux 内核是否支持 ufs 文件系统，你可以执行下面的命令：</p>
+
+<pre><code>$ cat /proc/filesystems
+</code></pre>
+
+<h6>输出示例：</h6>
+
+<pre><code>nodev filesystem
+nodev sysfs
+nodev rootfs
+nodev bdev
+nodev proc
+nodev cpuset
+nodev binfmt_misc
+nodev debugfs
+nodev securityfs
+nodev sockfs
+nodev usbfs
+nodev pipefs
+nodev anon_inodefs
+nodev futexfs
+nodev tmpfs
+nodev inotifyfs
+nodev eventpollfs
+nodev devpts
+      ext2
+nodev ramfs
+nodev hugetlbfs
+      iso9660
+nodev mqueue
+      ext3
+nodev rpc_pipefs
+nodev autofs
+</code></pre>
+
+<p>第一行的关键字 nodev 含义是文件系统不需要挂载一个块设备，这是为什么也称为虚拟文件系统的原因。支持也被编译到内核中或者作为一个单独的模块。</p>
+
+<p><strong>检查是否安装 ufs 驱动的方法：</strong></p>
+
+<pre><code>方法1：$ cat /proc/filesystems | grep ufs
+方法2：$ ls -l /lib/modules/
+      /kernel/fs/ufs/ufs.ko
+$ uname -r
+</code></pre>
+
+<p>第1种方法无输出，且第2种方法文件不存在，表示UFS驱动没有编译到内核或作为模块安装。</p>
+
+<p><strong>安装 ufs 驱动</strong></p>
+
+<pre><code>$ modprobe ufs
+$ cat /proc/filesystems | grep ufs
+$ modinfo ufs
+$ lsmod | grep ufs
+</code></pre>
+
+<p><strong>挂载 ufs 硬盘</strong></p>
+
+<pre><code>$ sfdisk -l
+$ mkdir/mnt/freebsd
+$ mount -t ufs -o ro, ufstype=ufs2 /dev/hda8 /mnt/freebsd/
+</code></pre>
+
+<p><strong>编辑 /etc/fstab</strong>
+为了开机自动挂载，需要添加下面两行到 /etc/fstab 文件中：</p>
+
+<pre><code>/dev/hda8 /mnt/freebsd  ufs  ufstype=ufs2, ro  0  2
+</code></pre>
+
+<p><strong>现在你能挂载 ufs 分区，输入：</strong></p>
+
+<pre><code>$ mount /mnt/freebsd
+</code></pre>
+
+<p><strong>并且使用下面命令验证：</strong></p>
+
+<pre><code>$ mount
+......
+/dev/hda8 on/mnt/freebsd type ufs (ro, ufstype=ufs2)
+</code></pre>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[中藥煎煮]]></title>
+    <link href="http://moskvablues.github.io/blog/2020/09/01/chinese-medicine/"/>
+    <updated>2020-09-01T11:02:50+08:00</updated>
+    <id>http://moskvablues.github.io/blog/2020/09/01/chinese-medicine</id>
+    <content type="html"><![CDATA[<h2>方法一</h2>
+
+<table>
+<thead>
+<tr>
+<th style="text-align:right;">冷清水5碗水</th>
+<th style="text-align:right;">&nbsp;&nbsp;&nbsp;蓋上壺蓋武火煮漲</th>
+<th style="text-align:right;">注意事項</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">大火計時</td>
+<td style="text-align:right;">10分鐘</td>
+<td style="text-align:right;">檢查溢滿</td>
+</tr>
+<tr>
+<td style="text-align:right;">中火計時</td>
+<td style="text-align:right;">40分鐘</td>
+<td style="text-align:right;">&nbsp;&nbsp;&nbsp;檢查剩餘藥量</td>
+</tr>
+<tr>
+<td style="text-align:right;">中火計時</td>
+<td style="text-align:right;">7分鐘</td>
+<td style="text-align:right;">準備後下</td>
+</tr>
+<tr>
+<td style="text-align:right;">中火計時</td>
+<td style="text-align:right;">3分鐘</td>
+<td style="text-align:right;">後下</td>
+</tr>
+</tbody>
+</table>
+
+
+<h2>方法二</h2>
+
+<table>
+<thead>
+<tr>
+<th style="text-align:right;">冷清水5碗水</th>
+<th style="text-align:right;">&nbsp;&nbsp;&nbsp;蓋上壺蓋武火煮漲</th>
+<th style="text-align:right;">注意事項</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">大火計時</td>
+<td style="text-align:right;">20分鐘</td>
+<td style="text-align:right;">檢查溢滿</td>
+</tr>
+<tr>
+<td style="text-align:right;">中火計時</td>
+<td style="text-align:right;">35分鐘</td>
+<td style="text-align:right;">&nbsp;&nbsp;&nbsp;檢查剩餘藥量</td>
+</tr>
+<tr>
+<td style="text-align:right;">細火計時</td>
+<td style="text-align:right;">5分鐘</td>
+<td style="text-align:right;">準備後下</td>
+</tr>
+<tr>
+<td style="text-align:right;">大火計時</td>
+<td style="text-align:right;">2分鐘</td>
+<td style="text-align:right;">後下</td>
+</tr>
+</tbody>
+</table>
+
+]]></content>
+  </entry>
+  
+</feed>

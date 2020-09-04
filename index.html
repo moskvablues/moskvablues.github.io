@@ -1,0 +1,371 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>My Life Blog</title>
+  <meta name="author" content="moskvablues">
+
+  
+  <meta name="description" content="Linux下mount FreeBSD分区 挂载 mount ufs2 文件系统： mount -t ufs -o ufstype=ufs2,ro /dev/sdXY /path/to/mnt/point 每个分区包含一个文件系统存在 FreeBSD 中，称为一个 Slice。
+Slice 是 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://moskvablues.github.io/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Life Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Life Blog</a></h1>
+  
+    <h2>人生，無幾多個十年。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="moskvablues.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+	<li><a href="/">首页</a></li>
+	<li><a href="/blog/archives">归档</a></li>
+	<li><a href="/about">关于</a></li>
+</ul>
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2020/09/02/linux-mount-ufs-format/">Linux 环境下挂载新硬盘</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2020-09-02T15:03:58+08:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2020</span></span> <span class='time'>3:03 pm</span></time>
+        
+           | <a href="/blog/2020/09/02/linux-mount-ufs-format/#disqus_thread"
+             data-disqus-identifier="http://moskvablues.github.io/blog/2020/09/02/linux-mount-ufs-format/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>Linux下mount FreeBSD分区</h3>
+
+<p><strong>挂载 mount ufs2 文件系统：</strong></p>
+
+<pre><code>mount -t ufs -o ufstype=ufs2,ro /dev/sdXY /path/to/mnt/point
+</code></pre>
+
+<p>每个分区包含一个文件系统存在 FreeBSD 中，称为一个 Slice。
+Slice 是 FreeBSD 中的一个术语，通常称为分区。
+这是因为 FreeBSD 具有 UNIX 的背景，Slice 是编号的，从 1 开始到 4。因此你需要使用等同的 Linux 分区名称。</p>
+
+<p><strong>验证UFS分区支持</strong>
+为了检查你的 Linux 内核是否支持 ufs 文件系统，你可以执行下面的命令：</p>
+
+<pre><code>$ cat /proc/filesystems
+</code></pre>
+
+<h6>输出示例：</h6>
+
+<pre><code>nodev filesystem
+nodev sysfs
+nodev rootfs
+nodev bdev
+nodev proc
+nodev cpuset
+nodev binfmt_misc
+nodev debugfs
+nodev securityfs
+nodev sockfs
+nodev usbfs
+nodev pipefs
+nodev anon_inodefs
+nodev futexfs
+nodev tmpfs
+nodev inotifyfs
+nodev eventpollfs
+nodev devpts
+      ext2
+nodev ramfs
+nodev hugetlbfs
+      iso9660
+nodev mqueue
+      ext3
+nodev rpc_pipefs
+nodev autofs
+</code></pre>
+
+<p>第一行的关键字 nodev 含义是文件系统不需要挂载一个块设备，这是为什么也称为虚拟文件系统的原因。支持也被编译到内核中或者作为一个单独的模块。</p>
+
+<p><strong>检查是否安装 ufs 驱动的方法：</strong></p>
+
+<pre><code>方法1：$ cat /proc/filesystems | grep ufs
+方法2：$ ls -l /lib/modules/
+      /kernel/fs/ufs/ufs.ko
+$ uname -r
+</code></pre>
+
+<p>第1种方法无输出，且第2种方法文件不存在，表示UFS驱动没有编译到内核或作为模块安装。</p>
+
+<p><strong>安装 ufs 驱动</strong></p>
+
+<pre><code>$ modprobe ufs
+$ cat /proc/filesystems | grep ufs
+$ modinfo ufs
+$ lsmod | grep ufs
+</code></pre>
+
+<p><strong>挂载 ufs 硬盘</strong></p>
+
+<pre><code>$ sfdisk -l
+$ mkdir/mnt/freebsd
+$ mount -t ufs -o ro, ufstype=ufs2 /dev/hda8 /mnt/freebsd/
+</code></pre>
+
+<p><strong>编辑 /etc/fstab</strong>
+为了开机自动挂载，需要添加下面两行到 /etc/fstab 文件中：</p>
+
+<pre><code>/dev/hda8 /mnt/freebsd  ufs  ufstype=ufs2, ro  0  2
+</code></pre>
+
+<p><strong>现在你能挂载 ufs 分区，输入：</strong></p>
+
+<pre><code>$ mount /mnt/freebsd
+</code></pre>
+
+<p><strong>并且使用下面命令验证：</strong></p>
+
+<pre><code>$ mount
+......
+/dev/hda8 on/mnt/freebsd type ufs (ro, ufstype=ufs2)
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2020/09/01/chinese-medicine/">中藥煎煮</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2020-09-01T11:02:50+08:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>1</span><span class='date-suffix'>st</span>, <span class='date-year'>2020</span></span> <span class='time'>11:02 am</span></time>
+        
+           | <a href="/blog/2020/09/01/chinese-medicine/#disqus_thread"
+             data-disqus-identifier="http://moskvablues.github.io/blog/2020/09/01/chinese-medicine/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>方法一</h2>
+
+<table>
+<thead>
+<tr>
+<th style="text-align:right;">冷清水5碗水</th>
+<th style="text-align:right;">&nbsp;&nbsp;&nbsp;蓋上壺蓋武火煮漲</th>
+<th style="text-align:right;">注意事項</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">大火計時</td>
+<td style="text-align:right;">10分鐘</td>
+<td style="text-align:right;">檢查溢滿</td>
+</tr>
+<tr>
+<td style="text-align:right;">中火計時</td>
+<td style="text-align:right;">40分鐘</td>
+<td style="text-align:right;">&nbsp;&nbsp;&nbsp;檢查剩餘藥量</td>
+</tr>
+<tr>
+<td style="text-align:right;">中火計時</td>
+<td style="text-align:right;">7分鐘</td>
+<td style="text-align:right;">準備後下</td>
+</tr>
+<tr>
+<td style="text-align:right;">中火計時</td>
+<td style="text-align:right;">3分鐘</td>
+<td style="text-align:right;">後下</td>
+</tr>
+</tbody>
+</table>
+
+
+<h2>方法二</h2>
+
+<table>
+<thead>
+<tr>
+<th style="text-align:right;">冷清水5碗水</th>
+<th style="text-align:right;">&nbsp;&nbsp;&nbsp;蓋上壺蓋武火煮漲</th>
+<th style="text-align:right;">注意事項</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">大火計時</td>
+<td style="text-align:right;">20分鐘</td>
+<td style="text-align:right;">檢查溢滿</td>
+</tr>
+<tr>
+<td style="text-align:right;">中火計時</td>
+<td style="text-align:right;">35分鐘</td>
+<td style="text-align:right;">&nbsp;&nbsp;&nbsp;檢查剩餘藥量</td>
+</tr>
+<tr>
+<td style="text-align:right;">細火計時</td>
+<td style="text-align:right;">5分鐘</td>
+<td style="text-align:right;">準備後下</td>
+</tr>
+<tr>
+<td style="text-align:right;">大火計時</td>
+<td style="text-align:right;">2分鐘</td>
+<td style="text-align:right;">後下</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2020/09/02/linux-mount-ufs-format/">Linux 环境下挂载新硬盘</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2020/09/01/chinese-medicine/">中藥煎煮</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+<section>
+	<h1>Categories</h1>
+	<ul id="categories">
+		{% category_list %}
+	</ul>
+</section>
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2020 - moskvablues -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'https-moskvablues-github-io';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
